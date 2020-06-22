@@ -26,7 +26,7 @@ def main() -> None:
 
     else:
         # Check if the file is a monkey lang file.
-        if not str(args.file_name).endswith((".m", ".mon")):
+        if not str(args.file).endswith((".m", ".mon")):
             return print("Unrecognized file type. Only use .m or .mon files.")
 
         try:
