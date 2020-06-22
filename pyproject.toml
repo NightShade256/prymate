@@ -9,7 +9,7 @@ readme = "README.md"
 homepage = "https://github.com/NightShade256/prymate"
 keywords = [
     "Monkey Language",
-    "Monkey
+    "Monkey",
     "Interpreter",
 ]
 classifiers = [

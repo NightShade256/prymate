@@ -1,6 +1,6 @@
 # Prymate
 
-A simple interpreter for the Monkey Language (described in the book `Writing an Interpreter in Go by Thorsten Ball`) written in Python.
+A simple interpreter for the :monkey: Monkey Language (described in the book `Writing an Interpreter in Go by Thorsten Ball`) written in :snake: Python.
 
 ## Installation
 
