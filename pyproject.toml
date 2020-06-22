@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "prymate"
+version = "0.1.0"
+description = "A simple Monkey Language interpreter written in Python."
+authors = ["Anish Jewalikar <anishjewalikar@gmail.com>"]
+maintainers = ["Anish Jewalikar <anishjewalikar@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/NightShade256/prymate"
+keywords = [
+    "Monkey Language",
+    "Monkey
+    "Interpreter",
+]
+classifiers = [
+    "Operating System :: OS Independent"
+]
+
+[tool.poetry.scripts]
+prymate = "prymate.console:main"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+flake8 = "^3.8.3"
+black = "^19.10b0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
