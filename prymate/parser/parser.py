@@ -30,6 +30,7 @@ OP_PRECEDENCES = {
     TokenType.ASTERISK: Precedences.PRODUCT,
     TokenType.LPAREN: Precedences.CALL,
     TokenType.LBRACKET: Precedences.INDEX,
+    TokenType.MODULO: Precedences.PRODUCT,
 }
 
 
@@ -73,6 +74,7 @@ class Parser:
         self.register_infix(TokenType.GT, self.parse_infix_expression)
         self.register_infix(TokenType.LPAREN, self.parse_call_expression)
         self.register_infix(TokenType.LBRACKET, self.parse_index_exp)
+        self.register_infix(TokenType.MODULO, self.parse_infix_expression)
 
     def next_token(self) -> None:
         self.current_token = self.peek_token

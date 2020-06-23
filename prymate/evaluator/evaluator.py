@@ -179,7 +179,9 @@ def eval_int_infix_exp(
     elif operator == "*":
         return objects.Integer(left_val * right_val)
     elif operator == "/":
-        return objects.Integer(int(left_val / right_val))
+        return objects.Integer(left_val // right_val)
+    elif operator == "%":
+        return objects.Integer(left_val % right_val)
     elif operator == "<":
         return to_boolean_singleton(left_val < right_val)
     elif operator == ">":

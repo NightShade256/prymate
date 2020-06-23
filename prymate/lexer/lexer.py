@@ -53,6 +53,8 @@ class Lexer:
             tok = Token(TokenType.SLASH, self.ch)
         elif self.ch == "*":
             tok = Token(TokenType.ASTERISK, self.ch)
+        elif self.ch == "%":
+            tok = Token(TokenType.MODULO, self.ch)
         elif self.ch == "<":
             tok = Token(TokenType.LT, self.ch)
         elif self.ch == ">":

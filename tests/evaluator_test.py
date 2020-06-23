@@ -23,6 +23,8 @@ class TestEvaluator(unittest.TestCase):
             ["3 * 3 * 3 + 10", 37],
             ["3 * (3 * 3) + 10", 37],
             ["(5 + 10 * 2 + 15 / 3) * 2 + -10", 50],
+            ["2 * 3 % 4 * 2", 4],
+            ["2 * 3 % 4 * 2 - 10", -6],
         ]
 
         for tt in tests:
@@ -107,6 +109,7 @@ class TestEvaluator(unittest.TestCase):
             ["5 + true; 5;", "type mismatch: INTEGER + BOOLEAN"],
             ["-true", "unknown operator: -BOOLEAN"],
             ["true + false;", "unknown operator: BOOLEAN + BOOLEAN"],
+            ["true % false;", "unknown operator: BOOLEAN % BOOLEAN"],
             ["5; true + false; 5", "unknown operator: BOOLEAN + BOOLEAN"],
             ["if (10 > 1) { true + false; }", "unknown operator: BOOLEAN + BOOLEAN"],
             [

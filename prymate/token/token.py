@@ -19,6 +19,7 @@ class TokenType(enum.Enum):
     BANG = "!"
     ASTERISK = "*"
     SLASH = "/"
+    MODULO = "%"
 
     LT = "<"
     GT = ">"

@@ -28,6 +28,7 @@ if (5 < 10) {
 "foo bar"
 [1, 2];
 :
+%
 """
 
 
@@ -118,6 +119,7 @@ class TestLexer(unittest.TestCase):
             [TokenType.RBRACKET, "]"],
             [TokenType.SEMICOLON, ";"],
             [TokenType.COLON, ":"],
+            [TokenType.MODULO, "%"],
             [TokenType.EOF, ""],
         ]
 

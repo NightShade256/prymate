@@ -21,7 +21,7 @@ You can start the Monkey Language REPL through the command `prymate` with no arg
 ```bash
 $ prymate
 
-Prymate 0.1.0 [Running on Windows]
+Prymate 0.2.0 [Running on Windows]
 Type exit() to exit from the REPL.
 
 >>> puts("Hello, World!")
@@ -44,12 +44,19 @@ All the features in the canon monkey language can be used with prymate.
 
 Additions:
 
-1. More Inbuilt Functions like help, exit, type, gets, sumarr, int, str, and more.
+1. Additional Inbuilt Functions like `help, exit, type, gets, sumarr, zip, int, str, and more.`
 
-2. String !=, and == operations are supported.
+2. String `!=` and `==` operations are supported.
 
-The modulo `%` operator will be added in a future update.  
+3. Modulo `%` for determining the remainder of the expression `a / b`.
+
 I plan to add support for loops, floating point numbers and variable mutability in future updates.
+
+## Changelog
+
+v1.2.0
+
+1. Added the Modulo `%` operator for determing remainders, with the same precedence as `/` and `*`.
 
 ## Acknowledgements
 
