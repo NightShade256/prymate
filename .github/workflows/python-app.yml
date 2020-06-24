@@ -1,4 +1,4 @@
-name: Run Prymate Tests
+name: Tests
 
 on:
   push:
