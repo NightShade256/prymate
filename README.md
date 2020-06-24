@@ -1,5 +1,6 @@
 # Prymate
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8156a028f2cc4b92912c83b9021cf5e5)](https://www.codacy.com/manual/anishjewalikar/prymate?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NightShade256/prymate&amp;utm_campaign=Badge_Grade)
+
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8156a028f2cc4b92912c83b9021cf5e5)](https://www.codacy.com/manual/anishjewalikar/prymate?utm_source=github.com&utm_medium=referral&utm_content=NightShade256/prymate&utm_campaign=Badge_Grade)
 ![Tests](https://github.com/NightShade256/prymate/workflows/Tests/badge.svg?branch=master)
 
 A simple interpreter for the :monkey: Monkey Language (described in the book `Writing an Interpreter in Go by Thorsten Ball`) written in :snake: Python.
@@ -11,10 +12,7 @@ You can install the interpreter through `pip` by:
 
 You can also get the latest version through this git repo, and building the package yourself through poetry.
 Tests are included in the [tests](https://github.com/NightShade256/prymate/tree/master/tests) subfolder in this repository.  
-You can run the said tests by cloning the repo, and executing the `run_tests.sh` file on Windows through Git Bash.  
-Or you can do,  
-`python3 -m unittest tests.lexer_test tests.ast_test tests.parser_test tests.evaluator_test tests.objects_test`
-if you are on Linux/Mac OS.
+You can run the said tests by cloning the repo, and executing the `run_tests.bat` file on Windows, and `run_tests.sh` on Linux/Mac OS.
 
 ## Usage
 
@@ -23,7 +21,7 @@ You can start the Monkey Language REPL through the command `prymate` with no arg
 ```bash
 $ prymate
 
-Prymate 0.2.0 [Running on Windows]
+Prymate 0.2.1 [Running on Windows]
 Type exit() to exit from the REPL.
 
 >>> puts("Hello, World!")
@@ -56,9 +54,9 @@ I plan to add support for loops, floating point numbers and variable mutability 
 
 ## Changelog
 
-v0.2.0
+v0.2.1
 
-1. Added the Modulo `%` operator for determing remainders, with the same precedence as `/` and `*`.
+1. Fix name clash with Python's input function in the `lexer` package.
 
 ## Acknowledgements
 

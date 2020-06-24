@@ -360,8 +360,8 @@ class TestEvaluator(unittest.TestCase):
         if obj != evaluator.SINGLETONS["NULL"]:
             self.fail(f"Object is not NULL. Got {obj}.")
 
-    def _test_eval(self, input: str):
-        lexer = Lexer(input)
+    def _test_eval(self, input_case: str):
+        lexer = Lexer(input_case)
         parser = Parser(lexer)
         env = objects.Environment()
 

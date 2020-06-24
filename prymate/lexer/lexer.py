@@ -6,8 +6,8 @@ from prymate.token import Token, TokenType, lookup_ident
 class Lexer:
     """Represents the Monkey Language Lexer."""
 
-    def __init__(self, input: str) -> None:
-        self.input = input
+    def __init__(self, code: str) -> None:
+        self.code = code
         self.position = 0
         self.read_position = 0
         self.ch = ""
@@ -16,10 +16,10 @@ class Lexer:
 
     def read_char(self):
         """Read a character from the input."""
-        if self.read_position >= len(self.input):
+        if self.read_position >= len(self.code):
             self.ch = 0
         else:
-            self.ch = self.input[self.read_position]
+            self.ch = self.code[self.read_position]
 
         self.position = self.read_position
         self.read_position += 1
@@ -106,7 +106,7 @@ class Lexer:
             if self.ch == 0:
                 break
 
-        return self.input[pos : self.position]
+        return self.code[pos : self.position]
 
     def read_number(self) -> str:
         """Read a number from the input."""
@@ -119,7 +119,7 @@ class Lexer:
             if self.ch == 0:
                 break
 
-        return self.input[pos : self.position]
+        return self.code[pos : self.position]
 
     def read_string(self) -> str:
         pos = self.position + 1
@@ -128,7 +128,7 @@ class Lexer:
             if self.ch == '"' or self.ch == 0:
                 break
 
-        return self.input[pos : self.position]
+        return self.code[pos : self.position]
 
     def skip_whitespace(self) -> None:
         """Skips the whitespaces in the input."""
@@ -141,7 +141,7 @@ class Lexer:
     def peek_char(self) -> typing.Union[str, int]:
         """Peek the next character in the input."""
 
-        if self.read_position >= len(self.input):
+        if self.read_position >= len(self.code):
             return 0
         else:
-            return self.input[self.read_position]
+            return self.code[self.read_position]
