@@ -1,4 +1,6 @@
 # Prymate
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8156a028f2cc4b92912c83b9021cf5e5)](https://www.codacy.com/manual/anishjewalikar/prymate?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NightShade256/prymate&amp;utm_campaign=Badge_Grade)
+![Tests](https://github.com/NightShade256/prymate/workflows/Tests/badge.svg?branch=master)
 
 A simple interpreter for the :monkey: Monkey Language (described in the book `Writing an Interpreter in Go by Thorsten Ball`) written in :snake: Python.
 
@@ -54,7 +56,7 @@ I plan to add support for loops, floating point numbers and variable mutability 
 
 ## Changelog
 
-v1.2.0
+v0.2.0
 
 1. Added the Modulo `%` operator for determing remainders, with the same precedence as `/` and `*`.
 
