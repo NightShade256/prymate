@@ -29,6 +29,7 @@ if (5 < 10) {
 [1, 2];
 :
 %
+..
 """
 
 
@@ -120,6 +121,8 @@ class TestLexer(unittest.TestCase):
             [TokenType.SEMICOLON, ";"],
             [TokenType.COLON, ":"],
             [TokenType.MODULO, "%"],
+            [TokenType.DOT, "."],
+            [TokenType.DOT, "."],
             [TokenType.EOF, ""],
         ]
 

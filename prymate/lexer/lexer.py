@@ -65,6 +65,8 @@ class Lexer:
             tok = Token(TokenType.COLON, self.ch)
         elif self.ch == ",":
             tok = Token(TokenType.COMMA, self.ch)
+        elif self.ch == ".":
+            tok = Token(TokenType.DOT, self.ch)
         elif self.ch == "(":
             tok = Token(TokenType.LPAREN, self.ch)
         elif self.ch == ")":

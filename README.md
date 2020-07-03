@@ -21,7 +21,7 @@ You can start the Monkey Language REPL through the command `prymate` with no arg
 ```bash
 $ prymate
 
-Prymate 0.2.1 [Running on Windows]
+Prymate 0.3.0 [Running on Windows]
 Type exit() to exit from the REPL.
 
 >>> puts("Hello, World!")
@@ -50,13 +50,15 @@ Additions:
 
 3. Modulo `%` for determining the remainder of the expression `a / b`.
 
-I plan to add support for loops, floating point numbers and variable mutability in future updates.
+4. Floating point literals (type `FLOAT` in the interpreter).
+
+I plan to add support for loops and variable mutability in future updates.
 
 ## Changelog
 
-v0.2.1
+v0.3.0
 
-1. Fix name clash with Python's input function in the `lexer` package.
+1. Added support for floating point literals. They are represented as type `FLOAT` in the interpreter.
 
 ## Acknowledgements
 

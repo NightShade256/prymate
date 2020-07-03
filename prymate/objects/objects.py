@@ -7,6 +7,7 @@ class ObjectType(enum.Enum):
 
     # Basic types
     INTEGER = "INTEGER"
+    FLOAT = "FLOAT"
     BOOLEAN = "BOOLEAN"
     STRING = "STRING"
     NULL = "NULL"
@@ -70,6 +71,20 @@ class Integer(Object, Hashable):
 
     def hashkey(self) -> HashKey:
         return HashKey(self.tp(), self.value)
+
+
+class Float(Object, Hashable):
+    def __init__(self, value: float) -> None:
+        self.value = value
+
+    def tp(self) -> ObjectType:
+        return ObjectType.FLOAT
+
+    def inspect(self) -> str:
+        return str(self.value)
+
+    def hashkey(self) -> HashKey:
+        return HashKey(self.tp(), hash(self.value))
 
 
 class Boolean(Object, Hashable):

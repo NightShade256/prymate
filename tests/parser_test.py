@@ -17,6 +17,7 @@ from prymate.ast import (
     ArrayLiteral,
     IndexExpression,
     DictionaryLiteral,
+    FloatLiteral,
 )
 from prymate.lexer import Lexer
 from prymate.parser import Parser
@@ -180,6 +181,7 @@ class TestParser(unittest.TestCase):
             ["5 + 5;", 5, "+", 5],
             ["5 - 5;", 5, "-", 5],
             ["5 * 5;", 5, "*", 5],
+            ["1.5 * 1.5;", 1.5, "*", 1.5],
             ["5 / 5;", 5, "/", 5],
             ["5 % 5;", 5, "%", 5],
             ["5 > 5;", 5, ">", 5],
@@ -228,9 +230,14 @@ class TestParser(unittest.TestCase):
             ["5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"],
             ["3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"],
             ["3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"],
+            [
+                "3.12 + 4 * 5.3 == 3 * 1 + 4 * 5",
+                "((3.12 + (4 * 5.3)) == ((3 * 1) + (4 * 5)))",
+            ],
             ["true", "true"],
             ["false", "false"],
             ["3 > 5 == false", "((3 > 5) == false)"],
+            ["3.5 > 5.039411 == false", "((3.5 > 5.039411) == false)"],
             ["3 < 5 == true", "((3 < 5) == true)"],
             ["1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"],
             ["(5 + 5) * 2", "((5 + 5) * 2)"],
@@ -626,8 +633,21 @@ class TestParser(unittest.TestCase):
             self._test_bool_literal(exp, expected)
         elif isinstance(expected, int):
             self._test_int_literal(exp, expected)
+        elif isinstance(expected, float):
+            self._test_float_literal(exp, expected)
         elif isinstance(expected, str):
             self._test_identifier(exp, expected)
+
+    def _test_float_literal(self, fl: FloatLiteral, value: int):
+        if not isinstance(fl, FloatLiteral):
+            self.fail(f"Exp not a instance of FloatLiteral. Found {fl}.")
+
+        self.assertEqual(fl.value, value, f"fl.value is {fl.value}, expected {value}.")
+        self.assertEqual(
+            fl.token_literal(),
+            str(value),
+            f"il.token_literal() is {fl.token_literal()}, expected {str(value)}.",
+        )
 
     def _test_infix_exp(self, exp: InfixExpression, left, operator, right):
         if not isinstance(exp, InfixExpression):

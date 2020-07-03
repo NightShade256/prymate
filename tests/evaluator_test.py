@@ -6,7 +6,7 @@ from prymate.parser import Parser
 
 
 class TestEvaluator(unittest.TestCase):
-    def test_eval_int_exp(self):
+    def test_eval_numeric_exp(self):
         tests = [
             ["5", 5],
             ["10", 10],
@@ -25,6 +25,10 @@ class TestEvaluator(unittest.TestCase):
             ["(5 + 10 * 2 + 15 / 3) * 2 + -10", 50],
             ["2 * 3 % 4 * 2", 4],
             ["2 * 3 % 4 * 2 - 10", -6],
+            ["2.2 * 2", 4.4],
+            ["12 / 6", 2.0],
+            ["12.2 / 2", 6.1],
+            ["1.5 * -1.5", -2.25],
         ]
 
         for tt in tests:
@@ -97,6 +101,7 @@ class TestEvaluator(unittest.TestCase):
             ["return 10; 9;", 10],
             ["return 2 * 5; 9;", 10],
             ["9; return 2 * 5; 9;", 10],
+            ["9; return 2 * 5.2; 9;", 10.4],
         ]
 
         for tt in tests:
@@ -337,8 +342,8 @@ class TestEvaluator(unittest.TestCase):
                 self._test_null_object(evaluated)
 
     def _test_int_object(self, obj: objects.Object, expected: int):
-        if not isinstance(obj, objects.Integer):
-            self.fail(f"Expected object to be Integer, got {type(obj)}.")
+        if not isinstance(obj, objects.Integer) and not isinstance(obj, objects.Float):
+            self.fail(f"Expected object to be Integer/Float, got {type(obj)}.")
 
         self.assertEqual(
             obj.value,

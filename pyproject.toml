@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "prymate"
-version = "0.2.1"
+version = "0.3.0"
 description = "A simple Monkey Language interpreter written in Python."
 authors = ["Anish Jewalikar <anishjewalikar@gmail.com>"]
 maintainers = ["Anish Jewalikar <anishjewalikar@gmail.com>"]
@@ -11,6 +11,10 @@ keywords = [
     "Monkey Language",
     "Monkey",
     "Interpreter",
+    "Programming Language",
+    "Programming",
+    "Parser",
+    "Lexer",
 ]
 classifiers = [
     "Operating System :: OS Independent"

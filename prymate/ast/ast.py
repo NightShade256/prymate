@@ -22,7 +22,8 @@ __all__ = [
     "StringLiteral",
     "ArrayLiteral",
     "IndexExpression",
-    "DictionaryLiteral"
+    "DictionaryLiteral",
+    "FloatLiteral",
 ]
 
 
@@ -319,3 +320,15 @@ class DictionaryLiteral(Expression):
 
     def token_literal(self) -> str:
         return self.token.literal
+
+
+class FloatLiteral(Expression):
+    def __init__(self, token: Token) -> None:
+        self.token = token
+        self.value: float = None
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+    def token_literal(self) -> str:
+        return str(self.value)

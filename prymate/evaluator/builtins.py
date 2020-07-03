@@ -89,13 +89,13 @@ def gets_function(args: list) -> objects.Object:
 
 # Type Conversions
 def int_function(args: list) -> objects.Object:
-    """Converts a string to an integer."""
+    """Converts a string or a float to an integer."""
 
     if len(args) != 1:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
 
     arg = args[0]
-    if not isinstance(arg, objects.String):
+    if not isinstance(arg, objects.String) and not isinstance(arg, objects.Float):
         return objects.Error("argument to `int` not supported, got {arg.tp().value}")
 
     str_value = arg.value
@@ -105,6 +105,24 @@ def int_function(args: list) -> objects.Object:
         return objects.Error("argument cannot be converted to an integer.")
     else:
         return objects.Integer(int_value)
+
+
+def float_function(args: list) -> objects.Object:
+    "Convert an int or a string to a float."
+    if len(args) != 1:
+        return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
+
+    arg = args[0]
+    if not isinstance(arg, objects.String) and not isinstance(arg, objects.Integer):
+        return objects.Error("argument to `int` not supported, got {arg.tp().value}")
+
+    str_value = arg.value
+    try:
+        float_value = float(str_value)
+    except ValueError:
+        return objects.Error("argument cannot be converted to an integer.")
+    else:
+        return objects.Float(float_value)
 
 
 def str_function(args: list) -> objects.Object:
@@ -205,37 +223,47 @@ def zip_function(args: list) -> objects.Object:
 
 
 def sumarr_function(args: list) -> objects.Object:
-    """Returns the sum of the integer elements in an array.
+    """Returns the sum of the integer and float elements in an array.
     If there is any other element except that of the type INTEGER
-    an error will be returned instead."""
+    or FLOAT an error will be returned instead."""
     if len(args) != 1:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
 
     arg = args[0]
     if arg.tp() != objects.ObjectType.ARRAY:
-        return objects.Error(f"argument to `rest` not supported, got {arg.tp().value}")
+        return objects.Error(
+            f"argument to `sumarr` not supported, got {arg.tp().value}"
+        )
 
     array_sum = 0
     for element in arg.elements:
-        if not isinstance(element, objects.Integer):
-            return objects.Error(f"array contains a non-INTEGER element")
+        if not isinstance(element, objects.Integer) and not isinstance(
+            element, objects.Float
+        ):
+            return objects.Error(f"array contains a non-INTEGER or non-FLOAT element")
 
-        array_sum += int(element.value)
+        array_sum += element.value
 
-    return objects.Integer(array_sum)
+    if isinstance(array_sum, float):
+        return objects.Float(array_sum)
+    else:
+        return objects.Integer(array_sum)
 
 
-# Integer Functions
+# Numeric Functions
 def abs_function(args: list) -> objects.Object:
-    """Gives the absolute value of an integer."""
+    """Gives the absolute value of an integer or float."""
     if len(args) != 1:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
 
     arg = args[0]
-    if not isinstance(arg, objects.Integer):
+    if not isinstance(arg, objects.Integer) and not isinstance(arg, objects.Float):
         return objects.Error(f"argument to `abs` not supported, got {arg.tp().value}")
 
-    return objects.Integer(abs(arg.value))
+    if isinstance(arg.value, float):
+        return objects.Float(abs(arg.value))
+    else:
+        return objects.Integer(abs(arg.value))
 
 
 # Builtin Definitions
@@ -247,6 +275,7 @@ BUILTINS = {
     "puts": objects.Builtin(puts_function),
     "gets": objects.Builtin(gets_function),
     "int": objects.Builtin(int_function),
+    "float": objects.Builtin(float_function),
     "str": objects.Builtin(str_function),
     "abs": objects.Builtin(abs_function),
     "first": objects.Builtin(first_function),

@@ -18,6 +18,8 @@ def evaluate(node: ast.Node, env: objects.Environment) -> objects.Object:
         return evaluate(node.expression, env)
     elif isinstance(node, ast.IntegerLiteral):
         return objects.Integer(node.value)
+    elif isinstance(node, ast.FloatLiteral):
+        return objects.Float(node.value)
     elif isinstance(node, ast.BooleanLiteral):
         if node.value:
             return SINGLETONS["TRUE"]
@@ -129,19 +131,22 @@ def eval_bang_operator_exp(right: objects.Object) -> objects.Object:
 
 
 def eval_minus_preoperator_exp(right: objects.Object) -> objects.Object:
-    if right.tp() != objects.ObjectType.INTEGER:
+    if right.tp() not in (objects.ObjectType.INTEGER, objects.ObjectType.FLOAT):
         return objects.Error(f"unknown operator: -{right.tp().value}")
 
     value = right.value
-    return objects.Integer(-value)
+    if right.tp() == objects.ObjectType.INTEGER:
+        return objects.Integer(-value)
+    else:
+        return objects.Float(-value)
 
 
 def eval_infix_exp(operator: str, left: objects.Object, right: objects.Object):
-    if (
-        left.tp() == objects.ObjectType.INTEGER
-        and right.tp() == objects.ObjectType.INTEGER
-    ):
-        return eval_int_infix_exp(operator, left, right)
+    if left.tp() in (
+        objects.ObjectType.INTEGER,
+        objects.ObjectType.FLOAT,
+    ) and right.tp() in (objects.ObjectType.INTEGER, objects.ObjectType.FLOAT):
+        return eval_numeric_infix_exp(operator, left, right)
     elif (
         left.tp() == objects.ObjectType.BOOLEAN
         and right.tp() == objects.ObjectType.BOOLEAN
@@ -166,22 +171,22 @@ def eval_infix_exp(operator: str, left: objects.Object, right: objects.Object):
         )
 
 
-def eval_int_infix_exp(
+def eval_numeric_infix_exp(
     operator: str, left: objects.Integer, right: objects.Integer
 ) -> typing.Union[objects.Integer, objects.Boolean, objects.Error]:
     left_val = left.value
     right_val = right.value
 
     if operator == "+":
-        return objects.Integer(left_val + right_val)
+        return create_numeric_object(left_val + right_val)
     elif operator == "-":
-        return objects.Integer(left_val - right_val)
+        return create_numeric_object(left_val - right_val)
     elif operator == "*":
-        return objects.Integer(left_val * right_val)
+        return create_numeric_object(left_val * right_val)
     elif operator == "/":
-        return objects.Integer(left_val // right_val)
+        return create_numeric_object(left_val / right_val)
     elif operator == "%":
-        return objects.Integer(left_val % right_val)
+        return create_numeric_object(left_val % right_val)
     elif operator == "<":
         return to_boolean_singleton(left_val < right_val)
     elif operator == ">":
@@ -194,6 +199,15 @@ def eval_int_infix_exp(
         return objects.Error(
             f"unknown operator: {left.tp().value} {operator} {right.tp().value}"
         )
+
+
+def create_numeric_object(
+    value: typing.Union[int, float]
+) -> typing.Union[objects.Integer, objects.Float]:
+    if isinstance(value, float):
+        return objects.Float(value)
+    elif isinstance(value, int):
+        return objects.Integer(value)
 
 
 def eval_bool_infix_exp(

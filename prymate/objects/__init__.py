@@ -13,7 +13,8 @@ from .objects import (
     Hashable,
     Dictionary,
     HashKey,
-    HashPair
+    HashPair,
+    Float,
 )
 from .environment import Environment
 
@@ -34,5 +35,6 @@ __all__ = [
     "Hashable",
     "Dictionary",
     "HashKey",
-    "HashPair"
+    "HashPair",
+    "Float",
 ]

@@ -19,7 +19,7 @@ class TokenType(enum.Enum):
     BANG = "!"
     ASTERISK = "*"
     SLASH = "/"
-    MODULO = "%"
+    MODULO = "%"  # Additional
 
     LT = "<"
     GT = ">"
@@ -31,6 +31,7 @@ class TokenType(enum.Enum):
     COMMA = ","
     SEMICOLON = ";"
     COLON = ":"
+    DOT = "."  # Additional
 
     LPAREN = "("
     RPAREN = ")"

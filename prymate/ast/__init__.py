@@ -20,4 +20,5 @@ __all__ = [
     "ArrayLiteral",
     "IndexExpression",
     "DictionaryLiteral",
+    "FloatLiteral",
 ]

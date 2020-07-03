@@ -51,7 +51,7 @@ class Parser:
 
         # Register Prefixes
         self.register_prefix(TokenType.IDENT, self.parse_identifier)
-        self.register_prefix(TokenType.INT, self.parse_integer_literal)
+        self.register_prefix(TokenType.INT, self.parse_numeric_literal)
         self.register_prefix(TokenType.BANG, self.parse_prefix_expression)
         self.register_prefix(TokenType.MINUS, self.parse_prefix_expression)
         self.register_prefix(TokenType.TRUE, self.parse_boolean_literal)
@@ -165,8 +165,9 @@ class Parser:
     def parse_identifier(self) -> ast.Identifier:
         return ast.Identifier(self.current_token, self.current_token.literal)
 
-    def parse_integer_literal(self) -> typing.Optional[ast.IntegerLiteral]:
-        lit = ast.IntegerLiteral(self.current_token)
+    def parse_numeric_literal(
+        self,
+    ) -> typing.Union[ast.IntegerLiteral, ast.FloatLiteral, None]:
         try:
             value = int(self.current_token.literal)
         except ValueError:
@@ -174,7 +175,24 @@ class Parser:
             self.errors.append(msg)
             return None
 
-        lit.value = value
+        if not self.peek_token.tp == TokenType.DOT:
+            lit = ast.IntegerLiteral(self.current_token)
+            lit.value = value
+        else:
+            lit = ast.FloatLiteral(self.peek_token)
+            self.next_token()
+            self.next_token()
+            rep = f"{value}.{self.current_token.literal}"
+
+            try:
+                val = float(rep)
+            except ValueError:
+                msg = f"Could not parse {self.current_token.literal} as float."
+                self.errors.append(msg)
+                return None
+
+            lit.value = val
+
         return lit
 
     def parse_boolean_literal(self) -> ast.BooleanLiteral:
