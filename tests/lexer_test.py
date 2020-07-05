@@ -30,6 +30,7 @@ if (5 < 10) {
 :
 %
 ..
+const
 """
 
 
@@ -123,6 +124,7 @@ class TestLexer(unittest.TestCase):
             [TokenType.MODULO, "%"],
             [TokenType.DOT, "."],
             [TokenType.DOT, "."],
+            [TokenType.CONST, "const"],
             [TokenType.EOF, ""],
         ]
 

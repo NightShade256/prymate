@@ -21,7 +21,7 @@ You can start the Monkey Language REPL through the command `prymate` with no arg
 ```bash
 $ prymate
 
-Prymate 0.3.0 [Running on Windows]
+Prymate 0.4.0 [Running on Windows]
 Type exit() to exit from the REPL.
 
 >>> puts("Hello, World!")
@@ -52,13 +52,22 @@ Additions:
 
 4. Floating point literals (type `FLOAT` in the interpreter).
 
-I plan to add support for loops and variable mutability in future updates.
+5. Variable mutability (Reassign an already declared variable, a value).
+
+6. While Loops.
+
+I plan to add support for more things in the future.
+Examples for the above additions coming soon.
 
 ## Changelog
 
-v0.3.0
+v0.4.0
 
-1. Added support for floating point literals. They are represented as type `FLOAT` in the interpreter.
+1. Added support for variable mutability. Now you can reassign to a variable like:  
+   `a = 12;`  
+   if it was declared using `let` earlier.
+
+2. While Loops.
 
 ## Acknowledgements
 

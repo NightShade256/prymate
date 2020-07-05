@@ -1,6 +1,26 @@
 import enum
+import typing
 
 from prymate import ast
+
+__all__ = [
+    "Boolean",
+    "Error",
+    "Integer",
+    "Null",
+    "Object",
+    "ObjectType",
+    "ReturnValue",
+    "Function",
+    "String",
+    "Builtin",
+    "Array",
+    "Hashable",
+    "Dictionary",
+    "HashKey",
+    "HashPair",
+    "Float",
+]
 
 
 class ObjectType(enum.Enum):
@@ -28,14 +48,14 @@ class HashKey:
         self.tp = tp
         self.value = value
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: typing.Optional["HashKey"]) -> bool:
         if isinstance(other, HashKey):
             if other.tp == self.tp and other.value == self.value:
                 return True
 
         return False
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: typing.Optional["HashKey"]) -> bool:
         if isinstance(other, HashKey):
             if other.tp == self.tp and other.value == self.value:
                 return False

@@ -1,4 +1,7 @@
 import enum
+import typing
+
+__all__ = ["TokenType", "Token", "lookup_ident"]
 
 
 class TokenType(enum.Enum):
@@ -48,12 +51,14 @@ class TokenType(enum.Enum):
     IF = "IF"
     ELSE = "ELSE"
     RETURN = "RETURN"
+    CONST = "CONST"
+    WHILE = "WHILE"
 
 
 class Token:
     """Represents a token."""
 
-    def __init__(self, tp: TokenType, literal: str) -> None:
+    def __init__(self, tp: TokenType, literal: typing.Union[int, str]) -> None:
         self.tp = tp
         self.literal = literal
 
@@ -72,6 +77,8 @@ KEYWORDS = {
     "if": TokenType.IF,
     "else": TokenType.ELSE,
     "return": TokenType.RETURN,
+    "const": TokenType.CONST,
+    "while": TokenType.WHILE,
 }
 
 

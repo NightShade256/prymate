@@ -1,8 +1,12 @@
+from prymate.objects.objects import Object
 import typing
 
 from prymate import ast, objects
 
 from .builtins import BUILTINS
+
+__all__ = ["evaluate", "eval_program", "SINGLETONS"]
+
 
 SINGLETONS = {
     "NULL": objects.Null(),
@@ -59,6 +63,24 @@ def evaluate(node: ast.Node, env: objects.Environment) -> objects.Object:
             return val
 
         env.set_var(node.name.value, val)
+    elif isinstance(node, ast.ReassignStatement):
+        val = evaluate(node.value, env)
+        if is_error(val):
+            return val
+
+        success = env.reassign_var(node.name.value, val)
+        if success is None:
+            return objects.Error(f"cannot modify const identifier: {node.name.value}")
+        elif not success:
+            return objects.Error(f"identifier not found: {node.name.value}")
+    elif isinstance(node, ast.WhileStatement):
+        return eval_while_stmt(node, env)
+    elif isinstance(node, ast.ConstStatement):
+        val = evaluate(node.value, env)
+        if is_error(val):
+            return val
+
+        env.set_var(node.name.value, val, const=True)
     elif isinstance(node, ast.Identifier):
         return eval_identifier(node, env)
     elif isinstance(node, ast.FunctionLiteral):
@@ -251,6 +273,24 @@ def eval_if_exp(exp: ast.IfExpression, env: objects.Environment) -> objects.Obje
         return SINGLETONS["NULL"]
 
 
+def eval_while_stmt(
+    stmt: ast.WhileStatement, env: objects.Environment
+) -> typing.Optional[objects.Object]:
+    while True:
+        condition = evaluate(stmt.condition, env)
+        if is_error(condition):
+            return condition
+
+        if is_truthy(condition):
+            consequence = evaluate(stmt.consequence, env)
+
+            if is_error(consequence):
+                return consequence
+
+        else:
+            break
+
+
 def eval_block_statements(block: ast.BlockStatement, env: objects.Environment):
     result: objects.Object = None
 
@@ -314,6 +354,8 @@ def eval_exps(exps: list, env: objects.Environment) -> list:
 def apply_function(fn: objects.Object, args: list) -> objects.Object:
     if isinstance(fn, objects.Function):
         extended_env = extend_function_env(fn, args)
+        if is_error(extended_env):
+            return extended_env
         evaluated = evaluate(fn.body, extended_env)
         return unwrap_return_value(evaluated)
     elif isinstance(fn, objects.Builtin):
@@ -322,11 +364,16 @@ def apply_function(fn: objects.Object, args: list) -> objects.Object:
         return objects.Error(f"not a function: {fn.tp()}")
 
 
-def extend_function_env(fn: objects.Function, args: list) -> objects.Environment:
+def extend_function_env(
+    fn: objects.Function, args: list
+) -> typing.Union[objects.Environment, objects.Error]:
     env = objects.Environment(outer=fn.env)
 
     for count, param in enumerate(fn.parameters):
-        env.set_var(param.value, args[count])
+        try:
+            env.set_var(param.value, args[count])
+        except IndexError:
+            return objects.Error(f"{param.value} argument missing from function call.")
 
     return env
 
@@ -395,7 +442,7 @@ def is_truthy(obj: objects.Object) -> bool:
 
 
 def is_error(obj: objects.Object) -> bool:
-    if obj is not None:
+    if obj is not None and isinstance(obj, Object):
         return obj.tp() == objects.ObjectType.ERROR
 
     return False

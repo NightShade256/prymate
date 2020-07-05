@@ -5,6 +5,8 @@ from prymate import ast
 from prymate.lexer import Lexer
 from prymate.token import Token, TokenType
 
+__all__ = ["Parser"]
+
 
 # Precedence enumeration.
 class Precedences(enum.Enum):
@@ -96,6 +98,15 @@ class Parser:
             return self.parse_let_statement()
         elif self.current_token.tp == TokenType.RETURN:
             return self.parse_return_statement()
+        elif self.current_token.tp == TokenType.CONST:
+            return self.parse_const_statement()
+        elif self.current_token.tp == TokenType.WHILE:
+            return self.parse_while_statement()
+        elif (
+            self.current_token.tp == TokenType.IDENT
+            and self.peek_token.tp == TokenType.ASSIGN
+        ):
+            return self.parse_reassign_statement()
         else:
             return self.parse_expression_statement()
 
@@ -118,6 +129,61 @@ class Parser:
             self.next_token()
 
         return stmt
+
+    def parse_const_statement(self) -> typing.Optional[ast.ConstStatement]:
+        stmt = ast.ConstStatement(self.current_token)
+
+        if not self.expect_peek(TokenType.IDENT):
+            return None
+
+        stmt.name = ast.Identifier(self.current_token, self.current_token.literal)
+
+        if not self.expect_peek(TokenType.ASSIGN):
+            return None
+
+        self.next_token()
+
+        stmt.value = self.parse_expression(Precedences.LOWEST)
+
+        if self.peek_token.tp == TokenType.SEMICOLON:
+            self.next_token()
+
+        return stmt
+
+    def parse_reassign_statement(self) -> typing.Optional[ast.ReassignStatement]:
+        stmt = ast.ReassignStatement(TokenType.ASSIGN)
+        stmt.name = ast.Identifier(self.current_token, self.current_token.literal)
+
+        if not self.expect_peek(TokenType.ASSIGN):
+            return None
+
+        self.next_token()
+
+        stmt.value = self.parse_expression(Precedences.LOWEST)
+
+        if self.peek_token.tp == TokenType.SEMICOLON:
+            self.next_token()
+
+        return stmt
+
+    def parse_while_statement(self) -> typing.Optional[ast.WhileStatement]:
+        exp = ast.WhileStatement(self.current_token)
+
+        if not self.expect_peek(TokenType.LPAREN):
+            return None
+
+        self.next_token()
+        exp.condition = self.parse_expression(Precedences.LOWEST)
+
+        if not self.expect_peek(TokenType.RPAREN):
+            return None
+
+        if not self.expect_peek(TokenType.LBRACE):
+            return None
+
+        exp.consequence = self.parse_block_statement()
+
+        return exp
 
     def parse_return_statement(self) -> typing.Optional[ast.ReturnStatement]:
         stmt = ast.ReturnStatement(self.current_token)

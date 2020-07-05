@@ -1,8 +1,8 @@
 import argparse
 
-# import sys
-
 import prymate
+
+__all__ = ["main"]
 
 
 def main() -> None:

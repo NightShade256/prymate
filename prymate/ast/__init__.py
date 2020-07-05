@@ -21,4 +21,7 @@ __all__ = [
     "IndexExpression",
     "DictionaryLiteral",
     "FloatLiteral",
+    "ReassignStatement",
+    "ConstStatement",
+    "WhileStatement",
 ]

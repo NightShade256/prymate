@@ -2,6 +2,8 @@ import typing
 
 from prymate.token import Token, TokenType, lookup_ident
 
+__all__ = ["Lexer"]
+
 
 class Lexer:
     """Represents the Monkey Language Lexer."""
@@ -10,7 +12,7 @@ class Lexer:
         self.code = code
         self.position = 0
         self.read_position = 0
-        self.ch = ""
+        self.ch: typing.Union[int, str] = ""
 
         self.read_char()
 
@@ -27,7 +29,7 @@ class Lexer:
     def next_token(self) -> Token:
         """Generate the next token from the input."""
 
-        tok: Token = None
+        tok: Token
 
         self.skip_whitespace()
 
@@ -84,15 +86,16 @@ class Lexer:
         elif self.ch == 0:
             tok = Token(TokenType.EOF, "")
         else:
-            if self.ch.isalpha() or self.ch == "_":
-                ident = self.read_identifier()
-                tok = Token(lookup_ident(ident), ident)
-                return tok
-            elif self.ch.isdigit():
-                tok = Token(TokenType.INT, self.read_number())
-                return tok
-            else:
-                tok = Token(TokenType.ILLEGAL, self.ch)
+            if isinstance(self.ch, str):
+                if self.ch.isalpha() or self.ch == "_":
+                    ident = self.read_identifier()
+                    tok = Token(lookup_ident(ident), ident)
+                    return tok
+                elif self.ch.isdigit():
+                    tok = Token(TokenType.INT, self.read_number())
+                    return tok
+                else:
+                    tok = Token(TokenType.ILLEGAL, self.ch)
 
         self.read_char()
         return tok

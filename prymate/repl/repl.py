@@ -6,6 +6,8 @@ from prymate.lexer import Lexer
 from prymate.objects import Environment
 from prymate.parser import Parser
 
+__all__ = ["start"]
+
 
 def start() -> None:
 

@@ -1,25 +1,8 @@
-from .objects import (
-    Boolean,
-    Error,
-    Integer,
-    Null,
-    Object,
-    ObjectType,
-    ReturnValue,
-    Function,
-    String,
-    Builtin,
-    Array,
-    Hashable,
-    Dictionary,
-    HashKey,
-    HashPair,
-    Float,
-)
-from .environment import Environment
-
+from .environment import *
+from .objects import *
 
 __all__ = [
+    "Environment",
     "Boolean",
     "Integer",
     "Null",
@@ -27,7 +10,6 @@ __all__ = [
     "ObjectType",
     "ReturnValue",
     "Error",
-    "Environment",
     "Function",
     "String",
     "Builtin",

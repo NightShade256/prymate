@@ -24,6 +24,9 @@ __all__ = [
     "IndexExpression",
     "DictionaryLiteral",
     "FloatLiteral",
+    "ReassignStatement",
+    "ConstStatement",
+    "WhileStatement",
 ]
 
 
@@ -120,6 +123,61 @@ class ReturnStatement(Statement):
 
     def token_literal(self) -> None:
         return self.token.literal
+
+
+class ReassignStatement(Statement):
+    def __init__(self, token: Token) -> None:
+        self.token = token
+        self.name: Identifier = None
+        self.value: Expression = None
+
+    def __str__(self) -> str:
+        fmt = f"{str(self.name)} = "
+        fmt += str(self.value) if self.value is not None else ""
+        fmt += ";"
+        return fmt
+
+    def statement_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+
+class ConstStatement(Statement):
+    def __init__(self, token: Token) -> None:
+        self.token = token
+        self.name: Identifier = None
+        self.value: Expression = None
+
+    def __str__(self) -> str:
+        fmt = f"{self.token_literal()} {str(self.name)} = "
+        fmt += str(self.value) if self.value is not None else ""
+        fmt += ";"
+        return fmt
+
+    def statement_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+
+class WhileStatement(Statement):
+    def __init__(self, token: Token) -> None:
+        self.token = token
+        self.condition: Expression = None
+        self.consequence: BlockStatement = None
+
+    def __str__(self) -> str:
+        fmt = f"while{str(self.condition)} {str(self.consequence)}"
+        return fmt
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def statement_node(self) -> None:
+        pass
 
 
 class ExpressionStatement(Statement):
