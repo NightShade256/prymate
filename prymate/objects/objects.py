@@ -2,6 +2,7 @@ import enum
 import typing
 
 from prymate import ast
+from prymate import objects  # for typing information
 
 __all__ = [
     "Boolean",
@@ -48,21 +49,21 @@ class HashKey:
         self.tp = tp
         self.value = value
 
-    def __eq__(self, other: typing.Optional["HashKey"]) -> bool:
+    def __eq__(self, other: typing.Any) -> bool:
         if isinstance(other, HashKey):
             if other.tp == self.tp and other.value == self.value:
                 return True
 
         return False
 
-    def __ne__(self, other: typing.Optional["HashKey"]) -> bool:
+    def __ne__(self, other: typing.Any) -> bool:
         if isinstance(other, HashKey):
             if other.tp == self.tp and other.value == self.value:
                 return False
 
         return True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(f"{self.tp}-{self.value}")
 
 
@@ -108,6 +109,26 @@ class Float(Object, Hashable):
 
 
 class Boolean(Object, Hashable):
+    _false_instance: typing.Optional["Boolean"] = None
+    _true_instance: typing.Optional["Boolean"] = None
+
+    def __new__(cls, value: bool) -> "Boolean":
+        if value:
+            if cls._true_instance is not None:
+                return cls._true_instance
+            else:
+                new_true_instance: "Boolean" = super().__new__(cls)
+                cls._true_instance = new_true_instance
+                return new_true_instance
+
+        else:
+            if cls._false_instance is not None:
+                return cls._false_instance
+            else:
+                new_false_instance: "Boolean" = super().__new__(cls)
+                cls._false_instance = new_false_instance
+                return new_false_instance
+
     def __init__(self, value: bool) -> None:
         self.value = value
 
@@ -123,6 +144,17 @@ class Boolean(Object, Hashable):
 
 
 class Null(Object):
+
+    _instance: typing.Optional["Null"] = None
+
+    def __new__(cls) -> "Null":
+        if cls._instance is not None:
+            return cls._instance
+        else:
+            new_null_instance: "Null" = super().__new__(cls)
+            cls._instance = new_null_instance
+            return new_null_instance
+
     def tp(self) -> ObjectType:
         return ObjectType.NULL
 
@@ -153,7 +185,12 @@ class Error(Object):
 
 
 class Function(Object):
-    def __init__(self, parameters: list, body: ast.BlockStatement, env) -> None:
+    def __init__(
+        self,
+        parameters: typing.List[ast.Identifier],
+        body: ast.BlockStatement,
+        env: "objects.Environment",
+    ) -> None:
         self.parameters = parameters
         self.body = body
         self.env = env
@@ -184,7 +221,9 @@ class String(Object, Hashable):
 
 
 class Array(Object):
-    def __init__(self, elements: list) -> None:
+    def __init__(
+        self, elements: typing.Union[typing.List[Object], typing.List["Array"]]
+    ) -> None:
         self.elements = elements
 
     def tp(self) -> ObjectType:
@@ -202,7 +241,7 @@ class HashPair:
 
 
 class Dictionary(Object):
-    def __init__(self, pairs: dict) -> None:
+    def __init__(self, pairs: typing.Dict[HashKey, HashPair]) -> None:
         self.pairs = pairs
 
     def tp(self) -> ObjectType:
@@ -219,7 +258,9 @@ class Dictionary(Object):
 
 
 class Builtin(Object):
-    def __init__(self, function) -> None:
+    def __init__(
+        self, function: typing.Callable[[typing.List[Object]], Object]
+    ) -> None:
         self.function = function
 
     def tp(self) -> ObjectType:

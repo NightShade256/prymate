@@ -1,0 +1,15 @@
+let fib = fn(n) {
+    if (n == 0) {
+        return 0;
+    }
+
+    if (n == 1) {
+        return 1;
+    }
+
+    return fib(n - 1) + fib(n - 2);
+}
+
+let string = gets("Enter n: ");
+let number = int(string);
+puts(string + "th " + "fibonacci term is " + str(fib(number)));

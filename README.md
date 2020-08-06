@@ -3,7 +3,7 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8156a028f2cc4b92912c83b9021cf5e5)](https://www.codacy.com/manual/anishjewalikar/prymate?utm_source=github.com&utm_medium=referral&utm_content=NightShade256/prymate&utm_campaign=Badge_Grade)
 ![Tests](https://github.com/NightShade256/prymate/workflows/Tests/badge.svg?branch=master)
 
-A simple interpreter for the :monkey: Monkey Language (described in the book `Writing an Interpreter in Go by Thorsten Ball`) written in :snake: Python.
+A simple interpreter for the 🐒 Monkey Language (described in the book `Writing an Interpreter in Go by Thorsten Ball`) written in 🐍 Python.
 
 ## Installation
 
@@ -21,7 +21,7 @@ You can start the Monkey Language REPL through the command `prymate` with no arg
 ```bash
 $ prymate
 
-Prymate 0.4.0 [Running on Windows]
+Prymate 0.4.1 [Running on Windows]
 Type exit() to exit from the REPL.
 
 >>> puts("Hello, World!")
@@ -56,18 +56,16 @@ Additions:
 
 6. While Loops.
 
+7. Constants
+
 I plan to add support for more things in the future.
 Examples for the above additions coming soon.
 
 ## Changelog
 
-v0.4.0
+v0.4.1
 
-1. Added support for variable mutability. Now you can reassign to a variable like:  
-   `a = 12;`  
-   if it was declared using `let` earlier.
-
-2. While Loops.
+1. **_Massively_** improve typing. `mypy` is relatively quiet now.
 
 ## Acknowledgements
 

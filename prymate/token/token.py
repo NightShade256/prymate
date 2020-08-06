@@ -1,5 +1,4 @@
 import enum
-import typing
 
 __all__ = ["TokenType", "Token", "lookup_ident"]
 
@@ -58,7 +57,7 @@ class TokenType(enum.Enum):
 class Token:
     """Represents a token."""
 
-    def __init__(self, tp: TokenType, literal: typing.Union[int, str]) -> None:
+    def __init__(self, tp: TokenType, literal: str) -> None:
         self.tp = tp
         self.literal = literal
 
@@ -83,4 +82,5 @@ KEYWORDS = {
 
 
 def lookup_ident(ident: str) -> TokenType:
+    """Fetch correct token type for an identifier."""
     return KEYWORDS.get(ident, TokenType.IDENT)

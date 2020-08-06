@@ -17,6 +17,6 @@ __all__ = (
 )
 
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 __author__ = "Anish Jewalikar"
 __license__ = "MIT"

@@ -12,14 +12,14 @@ class Lexer:
         self.code = code
         self.position = 0
         self.read_position = 0
-        self.ch: typing.Union[int, str] = ""
+        self.ch = ""
 
         self.read_char()
 
-    def read_char(self):
+    def read_char(self) -> None:
         """Read a character from the input."""
         if self.read_position >= len(self.code):
-            self.ch = 0
+            self.ch = "\0"
         else:
             self.ch = self.code[self.read_position]
 
@@ -83,19 +83,18 @@ class Lexer:
             tok = Token(TokenType.LBRACKET, self.ch)
         elif self.ch == "]":
             tok = Token(TokenType.RBRACKET, self.ch)
-        elif self.ch == 0:
+        elif self.ch == "\0":
             tok = Token(TokenType.EOF, "")
         else:
-            if isinstance(self.ch, str):
-                if self.ch.isalpha() or self.ch == "_":
-                    ident = self.read_identifier()
-                    tok = Token(lookup_ident(ident), ident)
-                    return tok
-                elif self.ch.isdigit():
-                    tok = Token(TokenType.INT, self.read_number())
-                    return tok
-                else:
-                    tok = Token(TokenType.ILLEGAL, self.ch)
+            if self.ch.isalpha() or self.ch == "_":
+                ident = self.read_identifier()
+                tok = Token(lookup_ident(ident), ident)
+                return tok
+            elif self.ch.isdigit():
+                tok = Token(TokenType.INT, self.read_number())
+                return tok
+            else:
+                tok = Token(TokenType.ILLEGAL, self.ch)
 
         self.read_char()
         return tok
@@ -108,7 +107,7 @@ class Lexer:
             self.read_char()
 
             # if EOF break the loop, else it raises an error.
-            if self.ch == 0:
+            if self.ch == "\0":
                 break
 
         return self.code[pos : self.position]
@@ -121,7 +120,7 @@ class Lexer:
             self.read_char()
 
             # If EOF break the loop, else it raises an error.
-            if self.ch == 0:
+            if self.ch == "\0":
                 break
 
         return self.code[pos : self.position]
@@ -130,17 +129,17 @@ class Lexer:
         pos = self.position + 1
         while True:
             self.read_char()
-            if self.ch == '"' or self.ch == 0:
+            if self.ch == '"' or self.ch == "\0":
                 break
 
         return self.code[pos : self.position]
 
     def skip_whitespace(self) -> None:
         """Skips the whitespaces in the input."""
-        if self.ch == 0:
+        if self.ch == "\0":
             return
 
-        while str(self.ch).isspace():
+        while self.ch.isspace():
             self.read_char()
 
     def peek_char(self) -> typing.Union[str, int]:

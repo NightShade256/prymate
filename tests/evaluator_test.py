@@ -307,8 +307,8 @@ class TestEvaluator(unittest.TestCase):
             objects.String("two").hashkey(): 2,
             objects.String("three").hashkey(): 3,
             objects.Integer(4).hashkey(): 4,
-            evaluator.SINGLETONS["TRUE"].hashkey(): 5,
-            evaluator.SINGLETONS["FALSE"].hashkey(): 6,
+            objects.Boolean(True).hashkey(): 5,
+            objects.Boolean(False).hashkey(): 6,
         }
 
         self.assertEqual(
@@ -362,7 +362,7 @@ class TestEvaluator(unittest.TestCase):
         )
 
     def _test_null_object(self, obj: objects.Object):
-        if obj != evaluator.SINGLETONS["NULL"]:
+        if obj is not objects.Null():
             self.fail(f"Object is not NULL. Got {obj}.")
 
     def _test_eval(self, input_case: str):

@@ -1,4 +1,5 @@
 from .environment import *
+from .builtins import *
 from .objects import *
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "HashKey",
     "HashPair",
     "Float",
+    "BUILTINS"
 ]

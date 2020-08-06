@@ -1,4 +1,5 @@
 import typing
+from typing import List
 
 from prymate.token import Token
 
@@ -43,15 +44,13 @@ class Node:
 class Statement(Node):
     """Class that represents a statement node."""
 
-    def statement_node(self):
-        raise NotImplementedError()
+    pass
 
 
 class Expression(Node):
     """Class that represents an expression node."""
 
-    def expression_node(self):
-        raise NotImplementedError()
+    pass
 
 
 class Program(Node):
@@ -91,8 +90,8 @@ class Identifier(Expression):
 class LetStatement(Statement):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.name: Identifier = None
-        self.value: Expression = None
+        self.name: Identifier
+        self.value: Expression
 
     def __str__(self) -> str:
         fmt = f"{self.token_literal()} {str(self.name)} = "
@@ -110,7 +109,7 @@ class LetStatement(Statement):
 class ReturnStatement(Statement):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.return_value: Expression = None
+        self.return_value: Expression
 
     def __str__(self) -> str:
         fmt = f"{self.token_literal()} "
@@ -121,15 +120,15 @@ class ReturnStatement(Statement):
     def statement_node(self) -> None:
         pass
 
-    def token_literal(self) -> None:
+    def token_literal(self) -> str:
         return self.token.literal
 
 
 class ReassignStatement(Statement):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.name: Identifier = None
-        self.value: Expression = None
+        self.name: Identifier
+        self.value: Expression
 
     def __str__(self) -> str:
         fmt = f"{str(self.name)} = "
@@ -147,8 +146,8 @@ class ReassignStatement(Statement):
 class ConstStatement(Statement):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.name: Identifier = None
-        self.value: Expression = None
+        self.name: Identifier
+        self.value: Expression
 
     def __str__(self) -> str:
         fmt = f"{self.token_literal()} {str(self.name)} = "
@@ -166,8 +165,8 @@ class ConstStatement(Statement):
 class WhileStatement(Statement):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.condition: Expression = None
-        self.consequence: BlockStatement = None
+        self.condition: Expression
+        self.consequence: BlockStatement
 
     def __str__(self) -> str:
         fmt = f"while{str(self.condition)} {str(self.consequence)}"
@@ -183,7 +182,7 @@ class WhileStatement(Statement):
 class ExpressionStatement(Statement):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.expression: Expression = None
+        self.expression: Expression
 
     def __str__(self) -> str:
         fmt = str(self.expression) if self.expression is not None else ""
@@ -199,7 +198,7 @@ class ExpressionStatement(Statement):
 class IntegerLiteral(Expression):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.value: int = None
+        self.value: int
 
     def __str__(self) -> str:
         return self.token.literal
@@ -212,7 +211,7 @@ class PrefixExpression(Expression):
     def __init__(self, token: Token, operator: str) -> None:
         self.token = token
         self.operator: str = operator
-        self.right: Expression = None
+        self.right: Expression
 
     def __str__(self) -> str:
         return f"({self.operator}{str(self.right)})"
@@ -222,11 +221,11 @@ class PrefixExpression(Expression):
 
 
 class InfixExpression(Expression):
-    def __init__(self, token: Token, operator: Token, left: Expression) -> None:
+    def __init__(self, token: Token, operator: str, left: Expression) -> None:
         self.token = token
-        self.left: Expression = left
-        self.operator: str = operator
-        self.right: Expression = None
+        self.left = left
+        self.operator = operator
+        self.right: Expression
 
     def __str__(self) -> str:
         return f"({str(self.left)} {self.operator} {str(self.right)})"
@@ -250,9 +249,9 @@ class BooleanLiteral(Expression):
 class IfExpression(Expression):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.condition: Expression = None
-        self.consequence = None
-        self.alternative = None
+        self.condition: Expression
+        self.consequence: BlockStatement
+        self.alternative: BlockStatement
 
     def __str__(self) -> str:
         fmt = f"if{str(self.condition)} {str(self.consequence)}"
@@ -268,7 +267,7 @@ class IfExpression(Expression):
 class BlockStatement(Statement):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.statements = []
+        self.statements: typing.List[Statement] = []
 
     def __str__(self) -> str:
         fmt = ""
@@ -278,14 +277,14 @@ class BlockStatement(Statement):
         return fmt
 
     def token_literal(self) -> str:
-        self.token.literal
+        return self.token.literal
 
 
 class FunctionLiteral(Expression):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.parameters = []
-        self.body: BlockStatement = None
+        self.parameters: typing.List[Identifier] = []
+        self.body: BlockStatement
 
     def __str__(self) -> str:
         fmt = f"{self.token_literal()}("
@@ -302,7 +301,7 @@ class CallExpression(Expression):
     def __init__(self, token: Token, function: Expression) -> None:
         self.token = token
         self.function = function
-        self.arguments = []
+        self.arguments: typing.List[Expression] = []
 
     def __str__(self) -> str:
         fmt = ""
@@ -336,7 +335,7 @@ class StringLiteral(Expression):
 class ArrayLiteral(Expression):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.elements = []
+        self.elements: List[Expression] = []
 
     def __str__(self) -> str:
         elements = []
@@ -353,7 +352,7 @@ class IndexExpression(Expression):
     def __init__(self, token: Token, left: Expression) -> None:
         self.token = token
         self.left = left
-        self.index: Expression = None
+        self.index: Expression
 
     def __str__(self) -> str:
         return f"({str(self.left)}[{str(self.index)}])"
@@ -365,7 +364,7 @@ class IndexExpression(Expression):
 class DictionaryLiteral(Expression):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.pairs = {}
+        self.pairs: typing.Dict[Expression, Expression] = {}
 
     def __str__(self) -> str:
         fmt = "{"
@@ -383,7 +382,7 @@ class DictionaryLiteral(Expression):
 class FloatLiteral(Expression):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.value: float = None
+        self.value: float
 
     def __str__(self) -> str:
         return str(self.value)

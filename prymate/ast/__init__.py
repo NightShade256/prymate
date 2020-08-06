@@ -3,6 +3,7 @@ from .ast import *
 __all__ = [
     "Node",
     "Expression",
+    "ExpressionStatement",
     "Identifier",
     "IntegerLiteral",
     "LetStatement",

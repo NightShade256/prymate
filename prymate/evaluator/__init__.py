@@ -1,3 +1,9 @@
-from .evaluator import SINGLETONS, eval_program, evaluate
+from .evaluator import (
+    eval_program,
+    evaluate,
+)
 
-__all__ = ["SINGLETONS", "eval_program", "evaluate"]
+__all__ = [
+    "eval_program",
+    "evaluate",
+]

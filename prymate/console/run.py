@@ -7,8 +7,8 @@ __all__ = ["main"]
 
 def main() -> None:
     # Create a CLI argument parser.
-    parser = argparse.ArgumentParser("Execute Monkey Language code.")
-    parser.add_argument(
+    aparser = argparse.ArgumentParser("Execute Monkey Language code.")
+    aparser.add_argument(
         "-f",
         "--file",
         metavar="file",
@@ -16,7 +16,7 @@ def main() -> None:
         help="Path to the Monkey Language file.",
     )
 
-    args = parser.parse_args()
+    args = aparser.parse_args()
 
     if args.file is None:
         try:
@@ -26,8 +26,8 @@ def main() -> None:
 
     else:
         # Check if the file is a monkey lang file.
-        if not str(args.file).endswith((".m", ".mon")):
-            return print("Unrecognized file type. Only use .m or .mon files.")
+        if not str(args.file).endswith((".m", ".mon", ".mk")):
+            return print("Unrecognized file type. Only use .m, .mk or .mon files.")
 
         try:
             with open(args.file) as fp:
@@ -40,6 +40,8 @@ def main() -> None:
 
             program = parser.parse_program()
             if parser.errors:
+                print("Prymate encountered errors while parsing the program.")
+                print("Errors:\n")
                 for error in parser.errors:
                     print(error)
 
@@ -47,7 +49,10 @@ def main() -> None:
 
             environment = prymate.objects.Environment()
             try:
-                prymate.evaluator.evaluate(program, environment)
+                obj = prymate.evaluator.evaluate(program, environment)
+                if isinstance(obj, prymate.objects.Error):
+                    print("Prymate encountered an error while evaluating the program.")
+                    print(f"Error:\n{obj.message}")
             except KeyboardInterrupt:
                 return print("KeyboardInterrupt encountered. Quitting.")
 

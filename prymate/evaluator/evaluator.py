@@ -1,21 +1,17 @@
-from prymate.objects.objects import Object
 import typing
 
 from prymate import ast, objects
 
-from .builtins import BUILTINS
-
-__all__ = ["evaluate", "eval_program", "SINGLETONS"]
-
-
-SINGLETONS = {
-    "NULL": objects.Null(),
-    "TRUE": objects.Boolean(True),
-    "FALSE": objects.Boolean(False),
-}
+__all__ = [
+    "evaluate",
+    "eval_program",
+]
 
 
-def evaluate(node: ast.Node, env: objects.Environment) -> objects.Object:
+def evaluate(
+    node: ast.Node, env: objects.Environment
+) -> typing.Optional[objects.Object]:
+    """Evaluate AST recursively."""
     if isinstance(node, ast.Program):
         return eval_program(node.statements, env)
     elif isinstance(node, ast.ExpressionStatement):
@@ -26,24 +22,25 @@ def evaluate(node: ast.Node, env: objects.Environment) -> objects.Object:
         return objects.Float(node.value)
     elif isinstance(node, ast.BooleanLiteral):
         if node.value:
-            return SINGLETONS["TRUE"]
+            return objects.Boolean(True)
 
-        return SINGLETONS["FALSE"]
+        return objects.Boolean(False)
     elif isinstance(node, ast.StringLiteral):
-        return objects.String(node.value)
+        value = str(node.value)
+        return objects.String(value)
     elif isinstance(node, ast.PrefixExpression):
         right = evaluate(node.right, env)
-        if is_error(right):
+        if is_error(right) or right is None:
             return right
 
         return eval_prefix_exp(node.operator, right)
     elif isinstance(node, ast.InfixExpression):
         left = evaluate(node.left, env)
-        if is_error(left):
+        if is_error(left) or left is None:
             return left
 
         right = evaluate(node.right, env)
-        if is_error(right):
+        if is_error(right) or right is None:
             return right
 
         return eval_infix_exp(node.operator, left, right)
@@ -53,19 +50,27 @@ def evaluate(node: ast.Node, env: objects.Environment) -> objects.Object:
         return eval_if_exp(node, env)
     elif isinstance(node, ast.ReturnStatement):
         val = evaluate(node.return_value, env)
-        if is_error(val):
+        if is_error(val) or val is None:
             return val
 
         return objects.ReturnValue(val)
     elif isinstance(node, ast.LetStatement):
-        val = evaluate(node.value, env)
-        if is_error(val):
+        exp = node.value
+        if not isinstance(exp, ast.Expression):
+            return None
+
+        val = evaluate(exp, env)
+        if is_error(val) or val is None:
             return val
 
         env.set_var(node.name.value, val)
     elif isinstance(node, ast.ReassignStatement):
-        val = evaluate(node.value, env)
-        if is_error(val):
+        exp = node.value
+        if not isinstance(exp, ast.Expression):
+            return None
+
+        val = evaluate(exp, env)
+        if is_error(val) or val is None:
             return val
 
         success = env.reassign_var(node.name.value, val)
@@ -76,8 +81,12 @@ def evaluate(node: ast.Node, env: objects.Environment) -> objects.Object:
     elif isinstance(node, ast.WhileStatement):
         return eval_while_stmt(node, env)
     elif isinstance(node, ast.ConstStatement):
-        val = evaluate(node.value, env)
-        if is_error(val):
+        exp = node.value
+        if not isinstance(exp, ast.Expression):
+            return None
+
+        val = evaluate(exp, env)
+        if is_error(val) or val is None:
             return val
 
         env.set_var(node.name.value, val, const=True)
@@ -89,27 +98,33 @@ def evaluate(node: ast.Node, env: objects.Environment) -> objects.Object:
         return objects.Function(params, body, env)
     elif isinstance(node, ast.CallExpression):
         function = evaluate(node.function, env)
-        if is_error(function):
+        if is_error(function) or function is None:
             return function
 
         args = eval_exps(node.arguments, env)
-        if len(args) == 1 and is_error(args[0]):
+        if args is None:
+            return args
+
+        if len(args) == 1 and isinstance(args[0], objects.Error):
             return args[0]
 
         return apply_function(function, args)
     elif isinstance(node, ast.ArrayLiteral):
         elements = eval_exps(node.elements, env)
-        if len(elements) == 1 and is_error(elements[0]):
+        if elements is None:
+            return elements
+
+        if len(elements) == 1 and isinstance(elements[0], objects.Error):
             return elements[0]
 
         return objects.Array(elements)
     elif isinstance(node, ast.IndexExpression):
         left = evaluate(node.left, env)
-        if is_error(left):
+        if is_error(left) or left is None:
             return left
 
         index = evaluate(node.index, env)
-        if is_error(index):
+        if is_error(index) or index is None:
             return index
 
         return eval_index_expression(left, index)
@@ -119,8 +134,10 @@ def evaluate(node: ast.Node, env: objects.Environment) -> objects.Object:
     return None
 
 
-def eval_program(stmts: list, env: objects.Environment) -> objects.Object:
-    result: objects.Object = None
+def eval_program(
+    stmts: typing.List[ast.Statement], env: objects.Environment
+) -> typing.Optional[objects.Object]:
+    result: typing.Optional[objects.Object] = None
 
     for statement in stmts:
         result = evaluate(statement, env)
@@ -142,42 +159,36 @@ def eval_prefix_exp(operator: str, right: objects.Object) -> objects.Object:
 
 
 def eval_bang_operator_exp(right: objects.Object) -> objects.Object:
-    if right is SINGLETONS["TRUE"]:
-        return SINGLETONS["FALSE"]
-    elif right is SINGLETONS["FALSE"]:
-        return SINGLETONS["TRUE"]
-    elif right is SINGLETONS["NULL"]:
-        return SINGLETONS["TRUE"]
+    if right is objects.Boolean(True):
+        return objects.Boolean(False)
+    elif right is objects.Boolean(False):
+        return objects.Boolean(True)
+    elif right is objects.Null():
+        return objects.Boolean(True)
     else:
-        return SINGLETONS["FALSE"]
+        return objects.Boolean(False)
 
 
 def eval_minus_preoperator_exp(right: objects.Object) -> objects.Object:
-    if right.tp() not in (objects.ObjectType.INTEGER, objects.ObjectType.FLOAT):
+    if not isinstance(right, objects.Integer) and not isinstance(right, objects.Float):
         return objects.Error(f"unknown operator: -{right.tp().value}")
 
-    value = right.value
-    if right.tp() == objects.ObjectType.INTEGER:
-        return objects.Integer(-value)
+    if isinstance(right, objects.Integer):
+        return objects.Integer(-right.value)
     else:
-        return objects.Float(-value)
+        return objects.Float(-right.value)
 
 
-def eval_infix_exp(operator: str, left: objects.Object, right: objects.Object):
-    if left.tp() in (
-        objects.ObjectType.INTEGER,
-        objects.ObjectType.FLOAT,
-    ) and right.tp() in (objects.ObjectType.INTEGER, objects.ObjectType.FLOAT):
+def eval_infix_exp(
+    operator: str, left: objects.Object, right: objects.Object
+) -> objects.Object:
+    if (isinstance(left, objects.Integer) or isinstance(left, objects.Float)) and (
+        isinstance(right, objects.Integer) or isinstance(right, objects.Float)
+    ):
         return eval_numeric_infix_exp(operator, left, right)
-    elif (
-        left.tp() == objects.ObjectType.BOOLEAN
-        and right.tp() == objects.ObjectType.BOOLEAN
-    ):
+    elif isinstance(left, objects.Boolean) and isinstance(right, objects.Boolean):
         return eval_bool_infix_exp(operator, left, right)
-    elif (
-        left.tp() == objects.ObjectType.STRING
-        and right.tp() == objects.ObjectType.STRING
-    ):
+    elif isinstance(left, objects.String) and isinstance(right, objects.String):
         return eval_string_infix_exp(operator, left, right)
     elif operator == "==":
         return to_boolean_singleton(left is right)
@@ -194,8 +205,10 @@ def eval_infix_exp(operator: str, left: objects.Object, right: objects.Object):
 
 
 def eval_numeric_infix_exp(
-    operator: str, left: objects.Integer, right: objects.Integer
-) -> typing.Union[objects.Integer, objects.Boolean, objects.Error]:
+    operator: str,
+    left: typing.Union[objects.Integer, objects.Float],
+    right: typing.Union[objects.Integer, objects.Float],
+) -> objects.Object:
     left_val = left.value
     right_val = right.value
 
@@ -223,13 +236,13 @@ def eval_numeric_infix_exp(
         )
 
 
-def create_numeric_object(
-    value: typing.Union[int, float]
-) -> typing.Union[objects.Integer, objects.Float]:
+def create_numeric_object(value: typing.Union[int, float]) -> objects.Object:
     if isinstance(value, float):
         return objects.Float(value)
     elif isinstance(value, int):
         return objects.Integer(value)
+    else:
+        return objects.Error(f"Cannot create a numeric object out of value {value}.")
 
 
 def eval_bool_infix_exp(
@@ -260,17 +273,19 @@ def eval_string_infix_exp(
         )
 
 
-def eval_if_exp(exp: ast.IfExpression, env: objects.Environment) -> objects.Object:
+def eval_if_exp(
+    exp: ast.IfExpression, env: objects.Environment
+) -> typing.Optional[objects.Object]:
     condition = evaluate(exp.condition, env)
-    if is_error(condition):
+    if is_error(condition) or condition is None:
         return condition
 
     if is_truthy(condition):
         return evaluate(exp.consequence, env)
-    elif exp.alternative is not None:
+    elif hasattr(exp, "alternative"):
         return evaluate(exp.alternative, env)
     else:
-        return SINGLETONS["NULL"]
+        return objects.Null()
 
 
 def eval_while_stmt(
@@ -278,7 +293,7 @@ def eval_while_stmt(
 ) -> typing.Optional[objects.Object]:
     while True:
         condition = evaluate(stmt.condition, env)
-        if is_error(condition):
+        if is_error(condition) or condition is None:
             return condition
 
         if is_truthy(condition):
@@ -290,9 +305,13 @@ def eval_while_stmt(
         else:
             break
 
+    return None
 
-def eval_block_statements(block: ast.BlockStatement, env: objects.Environment):
-    result: objects.Object = None
+
+def eval_block_statements(
+    block: ast.BlockStatement, env: objects.Environment
+) -> typing.Optional[objects.Object]:
+    result: typing.Optional[objects.Object] = None
 
     for stmt in block.statements:
         result = evaluate(stmt, env)
@@ -310,26 +329,28 @@ def eval_identifier(node: ast.Identifier, env: objects.Environment) -> objects.O
     if val is not None:
         return val
 
-    val = BUILTINS.get(node.value, None)
+    val = objects.BUILTINS.get(node.value, None)
     if val is not None:
         return val
 
     return objects.Error(f"identifier not found: {node.value}")
 
 
-def eval_dictionary_literal(node: ast.DictionaryLiteral, env: objects.Environment):
+def eval_dictionary_literal(
+    node: ast.DictionaryLiteral, env: objects.Environment
+) -> typing.Optional[objects.Object]:
     pairs = {}
 
     for keynode, valnode in node.pairs.items():
         key = evaluate(keynode, env)
-        if is_error(key):
+        if is_error(key) or key is None:
             return key
 
         if not isinstance(key, objects.Hashable):
             return objects.Error(f"unusable as hash key: {key.tp().value}")
 
         value = evaluate(valnode, env)
-        if is_error(value):
+        if is_error(value) or value is None:
             return value
 
         hashed = key.hashkey()
@@ -338,11 +359,16 @@ def eval_dictionary_literal(node: ast.DictionaryLiteral, env: objects.Environmen
     return objects.Dictionary(pairs)
 
 
-def eval_exps(exps: list, env: objects.Environment) -> list:
+def eval_exps(
+    exps: typing.List[ast.Expression], env: objects.Environment
+) -> typing.Optional[typing.List[objects.Object]]:
     result = []
 
     for exp in exps:
         evaluated = evaluate(exp, env)
+        if evaluated is None:
+            return evaluated
+
         if is_error(evaluated):
             return [evaluated]
 
@@ -351,12 +377,17 @@ def eval_exps(exps: list, env: objects.Environment) -> list:
     return result
 
 
-def apply_function(fn: objects.Object, args: list) -> objects.Object:
+def apply_function(
+    fn: objects.Object, args: typing.List[objects.Object]
+) -> typing.Optional[objects.Object]:
     if isinstance(fn, objects.Function):
         extended_env = extend_function_env(fn, args)
-        if is_error(extended_env):
+        if isinstance(extended_env, objects.Error):
             return extended_env
         evaluated = evaluate(fn.body, extended_env)
+        if evaluated is None:
+            return evaluated
+
         return unwrap_return_value(evaluated)
     elif isinstance(fn, objects.Builtin):
         return fn.function(args)
@@ -365,7 +396,7 @@ def apply_function(fn: objects.Object, args: list) -> objects.Object:
 
 
 def extend_function_env(
-    fn: objects.Function, args: list
+    fn: objects.Function, args: typing.List[objects.Object]
 ) -> typing.Union[objects.Environment, objects.Error]:
     env = objects.Environment(outer=fn.env)
 
@@ -388,12 +419,9 @@ def unwrap_return_value(obj: objects.Object) -> objects.Object:
 def eval_index_expression(
     left: objects.Object, index: objects.Object
 ) -> objects.Object:
-    if (
-        left.tp() == objects.ObjectType.ARRAY
-        and index.tp() == objects.ObjectType.INTEGER
-    ):
+    if isinstance(left, objects.Array) and isinstance(index, objects.Integer):
         return eval_array_index_exp(left, index)
-    elif left.tp() == objects.ObjectType.DICTIONARY:
+    elif isinstance(left, objects.Dictionary):
         return eval_dict_index_exp(left, index)
     else:
         return objects.Error(f"index operator not supported: {left.tp().value}")
@@ -406,43 +434,46 @@ def eval_array_index_exp(
     max_len = len(array.elements) - 1
 
     if idx < 0 or idx > max_len:
-        return SINGLETONS["NULL"]
+        return objects.Null()
 
     return array.elements[idx]
 
 
-def eval_dict_index_exp(dictl: objects.Object, index: objects.Object) -> objects.Object:
+def eval_dict_index_exp(
+    dictionary: objects.Dictionary, index: objects.Object
+) -> objects.Object:
 
     if not isinstance(index, objects.Hashable):
         return objects.Error(f"unusable as dictionary key: {index.tp().value}")
 
-    pair = dictl.pairs.get(index.hashkey(), None)
+    pair = dictionary.pairs.get(index.hashkey(), None)
     if pair is None:
-        return SINGLETONS["NULL"]
+        return objects.Null()
 
     return pair.value
 
 
 def to_boolean_singleton(case: bool) -> objects.Boolean:
     if case:
-        return SINGLETONS["TRUE"]
+        return objects.Boolean(True)
 
-    return SINGLETONS["FALSE"]
+    return objects.Boolean(False)
 
 
 def is_truthy(obj: objects.Object) -> bool:
-    if obj is SINGLETONS["NULL"]:
+    if obj is objects.Null():
         return False
-    elif obj is SINGLETONS["TRUE"]:
+    elif obj is objects.Boolean(True):
         return True
-    elif obj is SINGLETONS["FALSE"]:
+    elif obj is objects.Boolean(False):
         return False
     else:
         return True
 
 
-def is_error(obj: objects.Object) -> bool:
-    if obj is not None and isinstance(obj, Object):
-        return obj.tp() == objects.ObjectType.ERROR
+def is_error(obj: typing.Any) -> bool:
+    """Check if the provided argument is a Error Object."""
+    if obj is not None and isinstance(obj, objects.Object):
+        return isinstance(obj, objects.Error)
 
     return False

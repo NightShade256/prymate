@@ -306,12 +306,8 @@ class TestParser(unittest.TestCase):
             self.fail(f"Expected ExpressionStatement, got {consequence}.")
 
         self._test_identifier(consequence.expression, "x")
-
-        self.assertEqual(
-            exp.alternative,
-            None,
-            f"exp.alternative was not None, got {exp.alternative}",
-        )
+        if hasattr(exp, "alternative"):
+            self.fail(f"Expression's alternative is not None, got {exp.alternative}.")
 
     def test_if_else_exp(self):
         input_case = "if (x < y) { x } else { y }"

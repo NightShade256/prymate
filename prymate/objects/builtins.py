@@ -2,12 +2,11 @@ import inspect
 import sys
 import typing
 
-import prymate
-from prymate import objects
+from . import objects
 
 
 # General Functions
-def len_function(args: list) -> objects.Object:
+def len_function(args: typing.List[objects.Object]) -> objects.Object:
     """Gives the length of a string, array or number of keys of a dictionary."""
     if len(args) != 1:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
@@ -21,7 +20,7 @@ def len_function(args: list) -> objects.Object:
         return objects.Error(f"argument to `len` not supported, got {arg.tp().value}")
 
 
-def exit_function(args: list) -> typing.Optional[objects.Object]:
+def exit_function(args: typing.List[objects.Object]) -> objects.Object:
     """Exits from the interpreter."""
     if len(args) != 0:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=0")
@@ -29,7 +28,7 @@ def exit_function(args: list) -> typing.Optional[objects.Object]:
     sys.exit(0)
 
 
-def type_function(args: list) -> objects.Object:
+def type_function(args: typing.List[objects.Object]) -> objects.Object:
     """Returns the type of an object."""
     if len(args) != 1:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
@@ -38,7 +37,7 @@ def type_function(args: list) -> objects.Object:
     return objects.String(str(arg.tp().value))
 
 
-def help_function(args: list) -> objects.Object:
+def help_function(args: typing.List[objects.Object]) -> objects.Object:
     """Returns the help string of a builtin function.
     If no arguments are provided the list of inbuilt functions is provided."""
     if len(args) > 1 or len(args) < 0:
@@ -55,23 +54,24 @@ def help_function(args: list) -> objects.Object:
     return objects.String(docstring)
 
 
-def puts_function(args: list) -> objects.Object:
+def puts_function(args: typing.List[objects.Object]) -> objects.Object:
     """Prints the given arguments to stdout."""
     for arg in args:
         print(arg.inspect())
 
-    return prymate.evaluator.SINGLETONS["NULL"]
+    return objects.Null()
 
 
-def gets_function(args: list) -> objects.Object:
+def gets_function(args: typing.List[objects.Object]) -> objects.Object:
     """Accepts inputs from the user in the form of a string.
     You can provide an optional string that will serve as a
     prompt for the user."""
 
-    if len(args) > 1 or len(args) < 0:
+    if len(args) not in (0, 1):
         return objects.Error(f"wrong number of arguments. got={len(args)}, want= <=1")
 
-    arg = None
+    user_input: str
+
     if args:
         arg = args[0]
         if not isinstance(arg, objects.String):
@@ -79,16 +79,15 @@ def gets_function(args: list) -> objects.Object:
                 f"argument to `gets` not supported, got {arg.tp().value}"
             )
 
-    if arg is not None:
-        user_input = str(input(arg.value))
+        user_input = input(arg.value)
     else:
-        user_input = str(input())
+        user_input = input()
 
     return objects.String(user_input)
 
 
 # Type Conversions
-def int_function(args: list) -> objects.Object:
+def int_function(args: typing.List[objects.Object]) -> objects.Object:
     """Converts a string or a float to an integer."""
 
     if len(args) != 1:
@@ -96,7 +95,7 @@ def int_function(args: list) -> objects.Object:
 
     arg = args[0]
     if not isinstance(arg, objects.String) and not isinstance(arg, objects.Float):
-        return objects.Error("argument to `int` not supported, got {arg.tp().value}")
+        return objects.Error(f"argument to `int` not supported, got {arg.tp().value}")
 
     str_value = arg.value
     try:
@@ -107,7 +106,7 @@ def int_function(args: list) -> objects.Object:
         return objects.Integer(int_value)
 
 
-def float_function(args: list) -> objects.Object:
+def float_function(args: typing.List[objects.Object]) -> objects.Object:
     "Convert an int or a string to a float."
     if len(args) != 1:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
@@ -125,7 +124,7 @@ def float_function(args: list) -> objects.Object:
         return objects.Float(float_value)
 
 
-def str_function(args: list) -> objects.Object:
+def str_function(args: typing.List[objects.Object]) -> objects.Object:
     "Converts any monkey object to its string representation."
 
     if len(args) != 1:
@@ -136,70 +135,70 @@ def str_function(args: list) -> objects.Object:
 
 
 # Array Functions
-def first_function(args: list) -> objects.Object:
+def first_function(args: typing.List[objects.Object]) -> objects.Object:
     """Returns the first element of an array."""
     if len(args) != 1:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
 
     arg = args[0]
-    if arg.tp() != objects.ObjectType.ARRAY:
+    if not isinstance(arg, objects.Array):
         return objects.Error(f"argument to `first` not supported, got {arg.tp().value}")
 
-    if args[0].elements:
-        return args[0].elements[0]
+    if arg.elements:
+        return arg.elements[0]
 
-    return prymate.evaluator.SINGLETONS["NULL"]
+    return objects.Null()
 
 
-def last_function(args: list) -> objects.Object:
+def last_function(args: typing.List[objects.Object]) -> objects.Object:
     """Returns the last element of an array."""
     if len(args) != 1:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
 
     arg = args[0]
-    if arg.tp() != objects.ObjectType.ARRAY:
+    if not isinstance(arg, objects.Array):
         return objects.Error(f"argument to `last` not supported, got {arg.tp().value}")
 
-    if args[0].elements:
-        return args[0].elements[-1]
+    if arg.elements:
+        return arg.elements[-1]
 
-    return prymate.evaluator.SINGLETONS["NULL"]
+    return objects.Null()
 
 
-def rest_function(args: list) -> objects.Object:
+def rest_function(args: typing.List[objects.Object]) -> objects.Object:
     """Returns a new array with all the elements of the argument array,
     except the first."""
     if len(args) != 1:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
 
     arg = args[0]
-    if arg.tp() != objects.ObjectType.ARRAY:
+    if not isinstance(arg, objects.Array):
         return objects.Error(f"argument to `rest` not supported, got {arg.tp().value}")
 
-    array: list = arg.elements
+    array = arg.elements
     if array:
         return objects.Array(list(array[1:]))
 
-    return prymate.evaluator.SINGLETONS["NULL"]
+    return objects.Null()
 
 
-def push_function(args: list) -> objects.Object:
+def push_function(args: typing.List[objects.Object]) -> objects.Object:
     """Creates a new array with the element provided by the user appended to it.
     The first argument should be the array, and the second should be the element."""
     if len(args) != 2:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=2")
 
     arg = args[0]
-    if arg.tp() != objects.ObjectType.ARRAY:
+    if not isinstance(arg, objects.Array):
         return objects.Error(f"argument to `push` not supported, got {arg.tp().value}")
 
-    array: list = arg.elements
+    array = arg.elements
     new_array = list(array)
     new_array.append(args[1])
     return objects.Array(new_array)
 
 
-def zip_function(args: list) -> objects.Object:
+def zip_function(args: typing.List[objects.Object]) -> objects.Object:
     """Creates an array from the elements of the arrays provided as arguments.
 
     The length of the resulting array will be equal to the length of the smallest
@@ -208,21 +207,25 @@ def zip_function(args: list) -> objects.Object:
     if len(args) < 2:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want= >=2")
 
+    elements = []
+
     for arg in args:
-        if arg.tp() != objects.ObjectType.ARRAY:
+        if not isinstance(arg, objects.Array):
             return objects.Error(
                 f"argument to `zip` not supported, got {arg.tp().value}"
             )
         elif not arg.elements:
-            return objects.Error(f"an argument to `zip` is empty.")
+            return objects.Error("An argument to `zip` is empty.")
+        else:
+            elements.append(arg.elements)
 
-    zipped_array = list(zip(*[x.elements for x in args]))
+    zipped_array = [list(x) for x in zip(*elements)]
     zipped_array = [objects.Array(list(x)) for x in zipped_array]
 
     return objects.Array(zipped_array)
 
 
-def sumarr_function(args: list) -> objects.Object:
+def sumarr_function(args: typing.List[objects.Object]) -> objects.Object:
     """Returns the sum of the integer and float elements in an array.
     If there is any other element except that of the type INTEGER
     or FLOAT an error will be returned instead."""
@@ -230,17 +233,17 @@ def sumarr_function(args: list) -> objects.Object:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")
 
     arg = args[0]
-    if arg.tp() != objects.ObjectType.ARRAY:
+    if not isinstance(arg, objects.Array):
         return objects.Error(
             f"argument to `sumarr` not supported, got {arg.tp().value}"
         )
 
-    array_sum = 0
+    array_sum: typing.Union[int, float] = 0
     for element in arg.elements:
         if not isinstance(element, objects.Integer) and not isinstance(
             element, objects.Float
         ):
-            return objects.Error(f"array contains a non-INTEGER or non-FLOAT element")
+            return objects.Error("array contains a non-INTEGER or non-FLOAT element")
 
         array_sum += element.value
 
@@ -251,7 +254,7 @@ def sumarr_function(args: list) -> objects.Object:
 
 
 # Numeric Functions
-def abs_function(args: list) -> objects.Object:
+def abs_function(args: typing.List[objects.Object]) -> objects.Object:
     """Gives the absolute value of an integer or float."""
     if len(args) != 1:
         return objects.Error(f"wrong number of arguments. got={len(args)}, want=1")

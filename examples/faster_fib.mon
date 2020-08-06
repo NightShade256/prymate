@@ -1,0 +1,18 @@
+let fib = fn(n) {
+    let first = 0;
+    let second = 1;
+    let third = 0;
+    while (n > 0) {
+        third = first + second;
+        first = second;
+        second = third;
+
+        n = n - 1;
+    }
+
+    return first;
+}
+
+let string = gets("Enter n: ");
+let number = int(string);
+puts(string + "th " + "fibonacci term is " + str(fib(number)));

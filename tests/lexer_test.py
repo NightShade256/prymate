@@ -130,7 +130,7 @@ class TestLexer(unittest.TestCase):
 
         test_lexer = Lexer(TEST_INPUT)
 
-        for i, tt in enumerate(expected_output):
+        for tt in expected_output:
             tok = test_lexer.next_token()
 
             self.assertEqual(tok.tp, tt[0], f"Should be {tt[0]}")

@@ -14,7 +14,7 @@ def start() -> None:
     # Print some information.
     sys_env = platform.system()
     print(f"\nPrymate {prymate.__version__} [Running on {sys_env}]")
-    print(f"Type exit() to exit from the REPL.\n")
+    print("Type exit() to exit from the REPL.\n")
 
     # Start the REPL loop.
     env = Environment()
