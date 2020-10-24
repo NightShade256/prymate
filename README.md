@@ -75,7 +75,3 @@ I highly recommend you to read it, and build your own monkey interpreter!
 ## License
 
 The source code is licensed under the MIT license.
-
-## Support
-
-You can contact me through my email or through Discord (`__NightShade256__#5169`).
